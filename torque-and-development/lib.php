@@ -24,92 +24,54 @@ class Process
         $cities[$city_1][] = $city_2;
         $cities[$city_2][] = $city_1;
       }
-      fwrite(STDOUT, $this->p($cities, $clib, $croad)."\n");
+      fwrite(STDOUT, (float)$this->p($cities, $clib, $croad)."\n");
     }
   }
 
-  function p($cities, $clib, $croad){
-    if($croad>=$clib) {
-      return count($cities)*$clib;
+  function p($roads, $clib, $croad){
+    if($croad == 0 && $croad>=$clib) {
+      return count($roads)*$clib;
+    }
+    $cities = array_keys($roads);
+
+    $unavailable = [];
+    foreach ($cities as $city){
+      $unavailable[$city] = true;
     }
 
-    $available = [];
-
     $sum = 0;
-    while(count($available) < count($cities)){
-      $unavailable = array_diff(array_keys($cities), $available);
-      $r = $this->getMinConnectRoads($unavailable[0], $cities);
+    while(count($unavailable)){
+      $r = $this->getMinConnectRoads(array_keys($unavailable)[0], $roads);
       $sum += $clib + $croad*$r['roadsNum'];
-      $available = array_merge($available, $r['passedCities']);
+      foreach ($r['passedCities'] as $city){
+        unset($unavailable[$city]);
+      }
     }
     return $sum;
   }
 
-  function getMinConnectRoads($city, $cities){
+  function getMinConnectRoads($city, $roads){
     $passedCities = [];
     $passedCities[$city] = true;
     $roadsNum = 0;
     $queue = [$city];
     while(count($queue) != 0){
-      $c = array_pop($queue);
-      foreach ($cities[$c] as $city) {
+      $c = array_shift($queue);
+      foreach ($roads[$c] as $city) {
         if (!isset($passedCities[$city])){
           $roadsNum++;
           $passedCities[$city] = true;
-          array_unshift($queue, $city);
+          $queue[] = $city;
         }
       }
     }
-    return ['passedCities'=>$passedCities, 'roadsNum'=>$roadsNum];
-  }
-
-  function getAllConnectedCities($city, $cities){
-    $oldC = [];
-    $newC = [$city];
-    while(count($oldC) != count($newC)){
-      $oldC = $newC;
-      foreach ($oldC as $c){
-        $newC = array_merge($newC, $cities[$c]);
-      }
-      $newC = array_unique($newC);
-    }
-    return $newC;
+    return ['passedCities'=>array_keys($passedCities), 'roadsNum'=>$roadsNum];
   }
 
   function updateAvaliable($city, $cities, $available){
     $available[] = $city;
     $available = array_merge($available, $cities[$city]);
     return array_unique($available);
-  }
-
-  /**
-   * Get city with most roads to cities that is still not in $available
-   * @param $cities
-   * @param $available
-   * @return int|null|string
-   */
-  function getMaxIndentCity($cities, $available){
-    if (empty($cities)) {
-      return null;
-    }
-
-    $maxIndent = -1;
-    $maxCity = null;
-    foreach($cities as $city => $neibs){
-      $cityIndent = count(array_diff($neibs, $available));
-      if ($cityIndent > $maxIndent) {
-        $maxIndent = $cityIndent;
-        $maxCity = $city;
-      }
-    }
-    return $maxCity;
-  }
-
-  function getNextMax($maxUp, $maxDown, $Bi, $Bii)
-  {
-    $newMaxUp = max($maxUp + abs($Bi-$Bii), $maxDown + abs(1-$Bii));
-    $newMaxDown = max($maxUp + abs($Bi-1), $maxDown + abs(1-1));
-    return ['up' => $newMaxUp, 'down' => $newMaxDown];
   }
 
   function log($m){
