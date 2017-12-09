@@ -1,4 +1,5 @@
 <?php
+include ('binary_converter.php');
 include('lib.php');
 use PHPUnit\Framework\TestCase;
 
@@ -11,8 +12,16 @@ final class ProcessTest extends TestCase
   {
     $p = new Process();
     $p->setDebug(true);
-    $s = '3
-2 5 9';
-    $this->assertEquals(504, $p->p(explode("\r\n", $s)));
+    $s = fopen('test_data/test2.txt', 'r');
+    $this->assertEquals(5713, $p->run($s));
   }
+
+//  public function testProcess()
+//  {
+//
+//    $p = new Process();
+//    $p->setDebug(true);
+//    $s = fopen('test_data/test3.txt', 'r');
+//    $this->assertEquals(93, $p->run($s));
+//  }
 }

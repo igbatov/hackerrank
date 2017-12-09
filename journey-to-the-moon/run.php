@@ -2,4 +2,5 @@
 include('lib.php');
 $p = new Process();
 $p->setDebug(false);
-$p->run();
+$handle = fopen ("php://stdin","r");
+fwrite(STDOUT, $p->run($handle));
