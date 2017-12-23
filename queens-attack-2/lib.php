@@ -9,69 +9,80 @@ class Process
 
     public function p($n, $queen, $obstacles)
     {
-        // add corners as obstacles
-        $obstacles[] = [-1, -1];
-        $obstacles[] = [-1, $n+1];
-        $obstacles[] = [$n+1, $n+1];
-        $obstacles[] = [$n+1, -1];
+      /**
+       * we will operate on indefinite desk, so
+       * add border obstacles
+       */
+      // left border
+      for ($i=-1; $i<$n+1; $i++) {
+        $obstacles[] = [-1, $i];
+      }
+      // top border
+      for ($i=-1; $i<$n+1; $i++) {
+        $obstacles[] = [$i, $n+1];
+      }
+      // right border
+      for ($i=-1; $i<$n+1; $i++) {
+        $obstacles[] = [$n+1, $i];
+      }
+      // bottom border
+      for ($i=-1; $i<$n+1; $i++) {
+        $obstacles[] = [$i, -1];
+      }
 
-        // move $queen to the (0, 0)
-        foreach ($obstacles as $i => $obstacle) {
-            $obstacles[$i][0] -= $queen[0];
-            $obstacles[$i][1] -= $queen[1];
-        }
+      // move $queen to the (0, 0)
+      foreach ($obstacles as $i => $obstacle) {
+          $obstacles[$i][0] -= $queen[0];
+          $obstacles[$i][1] -= $queen[1];
+      }
 
-        // calc obstacles that lies on diagonals or axes
-        $obstDistances = [$n, $n, $n, $n, $n]; // indexed from top-left half-diagonal to bottom-right, clockwise
-        foreach ($obstacles as $i => $obstacle) {
-            if ($obstacle[0] < 0 && $obstacle[1] > 0 && abs($obstacle[0]) === abs($obstacle[1])) {
-                // means it lies diagonal in first quadrant diag, calculate distance to zero
-                if ($obstacle[1] - 2 < $obstDistances[0]) {
-                    $obstDistances[0] = $obstacle[1] - 2;
-                }
-            }
-            if ($obstacle[1] > 0 && $obstacle[0] === 0) {
-                // means it lies on up axes, calculate distance to zero
-                if ($obstacle[1] - 2 < $obstDistances[1]) {
-                    $obstDistances[1] = $obstacle[1] - 2;
-                }
-            }
-            if ($obstacle[0] > 0 && $obstacle[1] > 0 && abs($obstacle[0]) === abs($obstacle[1])) {
-                // means it lies diagonal in second quadrant diagonal, calculate distance to zero
-                if ($obstacle[1] - 2 < $obstDistances[2]) {
-                    $obstDistances[2] = $obstacle[1] - 2;
-                }
-            }
-            if ($obstacle[0] > 0 && $obstacle[1] === 0) {
-                // means it lies diagonal on right axes, calculate distance to zero
-                if ($obstacle[0] - 2 < $obstDistances[3]) {
-                    $obstDistances[3] = $obstacle[0] - 2;
-                }
-            }
-            if ($obstacle[0] > 0 && $obstacle[1] < 0 && abs($obstacle[0]) === abs($obstacle[1])) {
-                // means it lies diagonal on right axes, calculate distance to zero
-                if (abs($obstacle[0]) - 2 < $obstDistances[4]) {
-                    $obstDistances[4] = abs($obstacle[0]) - 2;
-                }
-            }
-            if ($obstacle[0] === 0 && $obstacle[1] < 0) {
-                // means it lies diagonal on right axes, calculate distance to zero
-                if (abs($obstacle[1]) - 2 < $obstDistances[5]) {
-                    $obstDistances[5] = abs($obstacle[1]) - 2;
-                }
-            }
-            if ($obstacle[0] < 0 && $obstacle[1] < 0 && abs($obstacle[0]) === abs($obstacle[1])) {
-                // means it lies diagonal on right axes, calculate distance to zero
-                if (abs($obstacle[0]) - 2 < $obstDistances[6]) {
-                    $obstDistances[6] = abs($obstacle[0]) - 2;
-                }
-            }
-            if ($obstacle[0] < 0 && $obstacle[1] === 0) {
-                // means it lies diagonal on right axes, calculate distance to zero
-                if (abs($obstacle[1]) - 2 < $obstDistances[6]) {
-                    $obstDistances[6] = abs($obstacle[1]) - 2;
-                }
-            }
+      // calc obstacles that lies on diagonals or axes
+      $obstDistances = [INF, INF, INF, INF, INF, INF, INF]; // indexed from top-left half-diagonal to bottom-right, clockwise
+      foreach ($obstacles as $i => $obstacle) {
+          if ($obstacle[0] < 0 && $obstacle[1] > 0 && abs($obstacle[0]) === abs($obstacle[1])) {
+              // means it lies diagonal in first quadrant diag, calculate distance to zero
+              if ($obstacle[1] - 2 < $obstDistances[0]) {
+                  $obstDistances[0] = $obstacle[1] - 2;
+              }
+          }
+          if ($obstacle[1] > 0 && $obstacle[0] === 0) {
+              // means it lies on up axes, calculate distance to zero
+              if ($obstacle[1] - 2 < $obstDistances[1]) {
+                  $obstDistances[1] = $obstacle[1] - 2;
+              }
+          }
+          if ($obstacle[0] > 0 && $obstacle[1] > 0 && abs($obstacle[0]) === abs($obstacle[1])) {
+              // means it lies diagonal in second quadrant diagonal, calculate distance to zero
+              if ($obstacle[1] - 2 < $obstDistances[2]) {
+                  $obstDistances[2] = $obstacle[1] - 2;
+              }
+          }
+          if ($obstacle[0] > 0 && $obstacle[1] === 0) {
+              // means it lies n right axes, calculate distance to zero
+              if ($obstacle[0] - 2 < $obstDistances[3]) {
+                  $obstDistances[3] = $obstacle[0] - 2;
+              }
+          }
+          if ($obstacle[0] > 0 && $obstacle[1] < 0 && abs($obstacle[0]) === abs($obstacle[1])) {
+              if (abs($obstacle[0]) - 2 < $obstDistances[4]) {
+                  $obstDistances[4] = abs($obstacle[0]) - 2;
+              }
+          }
+          if ($obstacle[0] === 0 && $obstacle[1] < 0) {
+              if (abs($obstacle[1]) - 2 < $obstDistances[5]) {
+                  $obstDistances[5] = abs($obstacle[1]) - 2;
+              }
+          }
+          if ($obstacle[0] < 0 && $obstacle[1] < 0 && abs($obstacle[0]) === abs($obstacle[1])) {
+              if (abs($obstacle[0]) - 2 < $obstDistances[6]) {
+                  $obstDistances[6] = abs($obstacle[0]) - 2;
+              }
+          }
+          if ($obstacle[0] < 0 && $obstacle[1] === 0) {
+              if (abs($obstacle[1]) - 2 < $obstDistances[7]) {
+                  $obstDistances[7] = abs($obstacle[1]) - 2;
+              }
+          }
         }
 
         $cells = 0;
